@@ -5,7 +5,7 @@ function main
     Q2D_GROUP_4_2('atrium.avi');
 end
 
-function Q2A_GROUP_4_2(filename)
+function Q2A_GROUP_04_02(filename)
     inputVid = VideoReader(filename);
     outputVidLossy = VideoWriter('Vid1.avi');
     outputVidLossy.Quality = 75;
@@ -23,7 +23,7 @@ function Q2A_GROUP_4_2(filename)
     close(outputVidLossy);
 end
 
-function Q2B_GROUP_4_2(filename)
+function Q2B_GROUP_04_02(filename)
     inputVid = VideoReader(filename);
     outputVidLossy = VideoWriter('Vid2.avi');
     outputVidLossy.Quality = 75;
@@ -41,7 +41,7 @@ function Q2B_GROUP_4_2(filename)
     close(outputVidLossy);
 end
 
-function Q2C_GROUP_4_2(filename)
+function Q2C_GROUP_04_02(filename)
     inputVid = VideoReader(filename);
     outputVidLossy = VideoWriter('Vid3.avi');
     outputVidLossy.Quality = 75;
@@ -77,7 +77,7 @@ function Q2C_GROUP_4_2(filename)
     close(outputVidLossy);
 end
 
-function Q2D_GROUP_4_2(filename)
+function Q2D_GROUP_04_02(filename)
     inputVid = VideoReader(filename);
     outputVidLossy = VideoWriter('Vid4.avi');
     outputVidLossy.Quality = 75;
