@@ -1,11 +1,4 @@
-function main
-%     Q2A_GROUP_4_2('atrium.avi');
-%     Q2B_GROUP_4_2('atrium.avi');
-%     Q2C_GROUP_4_2('atrium.avi');
-    Q2D_GROUP_4_2('atrium.avi');
-end
-
-function Q2A_GROUP_04_02(filename)
+function Q2A_GROUP_4_2(filename)
     inputVid = VideoReader(filename);
     outputVidLossy = VideoWriter('Vid1.avi');
     outputVidLossy.Quality = 75;
@@ -16,14 +9,14 @@ function Q2A_GROUP_04_02(filename)
         tempFrame = readFrame(inputVid);
         % insert your editing here
         bwthresh = graythresh(tempFrame);
-        tempFrame = uint8(im2bw(tempFrame, bwthresh))*intmax('uint8he');
+        tempFrame = uint8(im2bw(tempFrame, bwthresh))*intmax('uint8');
         % save edited video
         writeVideo(outputVidLossy,tempFrame);
     end
     close(outputVidLossy);
 end
 
-function Q2B_GROUP_04_02(filename)
+function Q2B_GROUP_4_2(filename)
     inputVid = VideoReader(filename);
     outputVidLossy = VideoWriter('Vid2.avi');
     outputVidLossy.Quality = 75;
@@ -33,7 +26,7 @@ function Q2B_GROUP_04_02(filename)
     while hasFrame(inputVid)
         tempFrame = readFrame(inputVid);
         % insert your editing here
-        bwthresh = g(tempFrame);
+        bwthresh = graythresh(tempFrame);
         tempFrame = imcomplement(uint8(im2bw(tempFrame, bwthresh))*intmax('uint8'));
         % save edited video
         writeVideo(outputVidLossy,tempFrame);
@@ -41,7 +34,7 @@ function Q2B_GROUP_04_02(filename)
     close(outputVidLossy);
 end
 
-function Q2C_GROUP_04_02(filename)
+function Q2C_GROUP_4_2(filename)
     inputVid = VideoReader(filename);
     outputVidLossy = VideoWriter('Vid3.avi');
     outputVidLossy.Quality = 75;
@@ -77,7 +70,7 @@ function Q2C_GROUP_04_02(filename)
     close(outputVidLossy);
 end
 
-function Q2D_GROUP_04_02(filename)
+function Q2D_GROUP_4_2(filename)
     inputVid = VideoReader(filename);
     outputVidLossy = VideoWriter('Vid4.avi');
     outputVidLossy.Quality = 75;
