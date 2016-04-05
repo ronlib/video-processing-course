@@ -12,33 +12,37 @@ function [u,v] = LucasKanadeOpticalFlow(I1, I2, WindowSize,MaxIter,NumLevels)
     end
     
     p = [0; 0];    
+    
+    for level = [1:NumLevels]
+        for loop = [1:MaxIter]      
 
-    for loop = [1:MaxIter]        
+            warp(:,:,1) = ones(size(I2))*p(1);
+            warp(:,:,2) = ones(size(I2))*p(2);
 
-        warp(:,:,1) = ones(size(I2))*p(1);
-        warp(:,:,2) = ones(size(I2))*p(2);
-
-        [ix, iy] = gradient(I2);
-        ixx = sum(sum(imwarp(imfilter(ix.*ix, ones(WindowSize, WindowSize)), warp)));
-        iyy = sum(sum(imwarp(imfilter(iy.*iy, ones(WindowSize, WindowSize)), warp)));
-        ixy = sum(sum(imwarp(imfilter(ix.*iy, ones(WindowSize, WindowSize)), warp)));
-
-
-        it = imwarp(I2, warp) - I1;
-
-        B = [ixx, ixy;
-             ixy, iyy];
+            [ix, iy] = gradient(I2);
+            ixx = sum(sum(imwarp(imfilter(ix.*ix, ones(WindowSize, WindowSize)), warp)));
+            iyy = sum(sum(imwarp(imfilter(iy.*iy, ones(WindowSize, WindowSize)), warp)));
+            ixy = sum(sum(imwarp(imfilter(ix.*iy, ones(WindowSize, WindowSize)), warp)));
 
 
-        B_it = [sum(sum(imfilter(ix.*ix, ones(WindowSize, WindowSize)).*it));
-                sum(sum(imfilter(iy.*iy, ones(WindowSize, WindowSize)).*it))];
+            it = imwarp(I2, warp) - I1;
 
-        delta_p = -inv(B)*B_it;
+            B = [ixx, ixy;
+                 ixy, iyy];
 
-        p = p + delta_p;
 
-    %    reshape(I1, 1,[])'
+            B_it = [sum(sum(imfilter(ix.*ix, ones(WindowSize, WindowSize)).*it));
+                    sum(sum(imfilter(iy.*iy, ones(WindowSize, WindowSize)).*it))];
 
+            delta_p = -inv(B)*B_it;
+
+            p = p + delta_p;
+
+        %    reshape(I1, 1,[])'
+
+        end
     end
+    
+
 
 end
