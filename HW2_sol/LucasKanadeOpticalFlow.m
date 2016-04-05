@@ -5,10 +5,8 @@ function [u,v] = LucasKanadeOpticalFlow(I1, I2, WindowSize,MaxIter,NumLevels)
     i_resized{2, NumLevels} = I2;
 
     for level = [1:NumLevels-1]
-        i_resized{1, NumLevels-level} = imgaussfilt(i_resized{1, NumLevels-level+1});
-        i_resized{1, NumLevels-level} = i_resized{1, NumLevels-level}(1:2:end, 1:2:end);
-        i_resized{2, NumLevels-level} = imgaussfilt(i_resized{2, NumLevels-level+1}) ;
-        i_resized{2, NumLevels-level} = i_resized{2, NumLevels-level}(1:2:end, 1:2:end);
+        i_resized{1, NumLevels-level} = impyramid(i_resized{1, NumLevels-level+1}, 'reduce');
+        i_resized{2, NumLevels-level} = impyramid(i_resized{2, NumLevels-level+1}, 'reduce');
     end
 
     p = [0; 0];
@@ -23,27 +21,27 @@ function [u,v] = LucasKanadeOpticalFlow(I1, I2, WindowSize,MaxIter,NumLevels)
             it = I2_current_warped - i_resized{1, level};
 
             [ix, iy] = gradient(I2_current_warped);
-            ixx = sum(sum(imwarp(imfilter(ix.*ix, ones(WindowSize)/WindowSize^2), warp)));
-            iyy = sum(sum(imwarp(imfilter(iy.*iy, ones(WindowSize)/WindowSize^2), warp)));
-            ixy = sum(sum(imwarp(imfilter(ix.*iy, ones(WindowSize)/WindowSize^2), warp)));
+            ixx = sum(sum(imwarp(ix.*ix, warp)));
+            iyy = sum(sum(imwarp(iy.*iy, warp)));
+            ixy = sum(sum(imwarp(ix.*iy, warp)));
 
-            B = [ixx, ixy;
-                 ixy, iyy];
+            BtB = [ixx, ixy;
+                   ixy, iyy];
 
 
-            B_it = [sum(sum(imfilter(ix.*ix, ones(WindowSize)/WindowSize^2).*it));
-                    sum(sum(imfilter(iy.*iy, ones(WindowSize)/WindowSize^2).*it))];
+            B_it = [sum(sum(ix.*it));
+                    sum(sum(iy.*it))];
 
-            delta_p = -inv(B)*B_it;
+            delta_p = -inv(BtB)*B_it;
 
-            p = p + delta_p;            
+            p = p + delta_p;
         end
-        
+
         clearvars warp;
         %         Next iteration should be on an image twice the size
         p = p.*2;
     end
 
-
-
+    u = p(1);
+    v = p(2);
 end
