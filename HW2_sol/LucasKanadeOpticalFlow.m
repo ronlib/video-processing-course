@@ -18,7 +18,7 @@ function [u,v] = LucasKanadeOpticalFlow(I1, I2, WindowSize,MaxIter,NumLevels)
             warp(:,:,1) = u;
             warp(:,:,2) = v;
 
-            [du, dv] = LucasKanadeStep(i_resized{1, level}, imwarp(i_resized{2, level}, warp), WindowSize);
+            [du, dv] = LucasKanadeStep(i_resized{1, level}, WarpImage(i_resized{2, level}, u, v), WindowSize);
             u = u + du;
             v = v + dv;
             
@@ -27,8 +27,10 @@ function [u,v] = LucasKanadeOpticalFlow(I1, I2, WindowSize,MaxIter,NumLevels)
         end
         
         %         Next iteration should be on an image twice the size
-        u = imresize(u, 2);
-        v = imresize(v, 2);
+        if level < NumLevels
+            u = imresize(u, 2);
+            v = imresize(v, 2);
+        end
         
     end
 
