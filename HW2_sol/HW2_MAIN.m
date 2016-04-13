@@ -41,7 +41,7 @@ title('I1')
 WindowSize=60; %%%Add your value here!
 MaxIter=3; %%%Add your value here!
 NumLevels=3; %%%Add your value here!
-NumOfFrames=60;
+NumOfFrames=100;
 
 %Load video file
 InputVidName='inputVid.avi';
