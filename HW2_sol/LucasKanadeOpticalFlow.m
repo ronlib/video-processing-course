@@ -9,29 +9,27 @@ function [u,v] = LucasKanadeOpticalFlow(I1, I2, WindowSize,MaxIter,NumLevels)
         i_resized{2, NumLevels-level} = impyramid(i_resized{2, NumLevels-level+1}, 'reduce');
     end
 
-   u = zeros(size(i_resized{1, 1}));
-   v = zeros(size(i_resized{1, 1}));
+    u = zeros(size(i_resized{1, 1}));
+    v = zeros(size(i_resized{1, 1}));
 
     for level = [1:NumLevels]
         for loop = [1:MaxIter]
-            
-            warp(:,:,1) = u;
-            warp(:,:,2) = v;
 
-            [du, dv] = LucasKanadeStep(i_resized{1, level}, WarpImage(i_resized{2, level}, u, v), WindowSize);
+            warped_im = WarpImage(i_resized{2, level}, u, v);
+            resized = i_resized{1, level};
+            [du, dv] = LucasKanadeStep(resized ,warped_im , WindowSize);
             u = u + du;
             v = v + dv;
-            
-            clearvars du dv warp;
-            
-        end
-        
-        %         Next iteration should be on an image twice the size
-        if level < NumLevels
-            u = imresize(u, 2);
-            v = imresize(v, 2);
-        end
-        
-    end
 
+            clearvars du dv warp;
+
+        end
+
+        %  Next iteration should be on an image twice the size
+        if level < NumLevels
+            u = imresize(u, size(i_resized{2,level+1})).*2;
+            v = imresize(v, size(i_resized{2,level+1})).*2;
+        end
+
+    end
 end
