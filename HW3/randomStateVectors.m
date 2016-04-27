@@ -1,10 +1,8 @@
 function stateVectors = randomStateVectors(S, deviation_params)
 %     im_size = size(I);
-    i = 2;
-    s_initial = S(:,1);
     stateVectors = S;
-    random_factor_mat = repmat(deviation_params, 1, size(S,2)-1).*randn(size(deviation_params, 1), size(S,2)-1);
-    stateVectors(:, 2:end) = stateVectors(:, 2:end) + random_factor_mat;
+    random_factor_mat = round(repmat(deviation_params, 1, size(S,2)).*randn(size(deviation_params, 1), size(S,2)));
+    stateVectors = stateVectors + random_factor_mat;
         
 %     while i <= size(S, 2)
 %         stateVectors(:, i) = stateVectors(:, i) + normnd(s_initial, deviation_params);

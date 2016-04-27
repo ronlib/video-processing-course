@@ -74,7 +74,7 @@ q = compNormHist(I,s_initial);
 W = zeros(1, length(S));
 C = zeros(1, length(S));
 for i=[1:length(S)]
-    W(i) = compBatDist(q, compNormHist(I, S(i)));
+    W(i) = compBatDist(q, compNormHist(I, S(:,i)));
     if ~(i == 1)
         C(i) = C(i-1) + W(i);
     else
@@ -90,7 +90,7 @@ W = W / sum_W;
 for i=2:length(images)
     S_prev = S;
     % LOAD NEW IMAGE FRAME
-    I = imread(['Images\' images(i).name]);
+    I = imread([fullfile('Images', images(1).name)]);
     
     % SAMPLE THE CURRENT PARTICLE FILTERS
     S_next_tag = sampleParticles(S_prev,C);
