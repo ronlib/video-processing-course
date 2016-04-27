@@ -51,7 +51,8 @@ ID = 'GROUP-XX-YY'; % FIX THIS LINE - LEAVE IT AS A STRING!
 N = 100;
 
 % Initial Settings
-images = dir('Images\*.png');
+% Using fullfile in order to support Matlab under Linux
+images = dir(fullfile('Images', '*.png'));
 s_initial = [297   % x center
     139    % y center
     16     % half width
@@ -63,15 +64,26 @@ s_initial = [297   % x center
 S = predictParticles(repmat(s_initial, 1, N));
 
 % LOAD FIRST IMAGE
-I = imread(['Images\' images(1).name]);
+I = imread([fullfile('Images', images(1).name)]);
 
 % COMPUTE NORMALIZED HISTOGRAM
 q = compNormHist(I,s_initial);
 
 % COMPUTE NORMALIZED WEIGHTS (W) AND PREDICTOR CDFS (C)
 % YOU NEED TO FILL THIS PART WITH CODE LINES:
-% ........
-% ........
+W = zeros(1, length(S));
+C = zeros(1, length(S));
+for i=[1:length(S)]
+    W(i) = compBatDist(q, compNormHist(I, S(i)));
+    if ~(i == 1)
+        C(i) = C(i-1) + W(i);
+    else
+        C(i) = W(i);
+    end
+end
+sum_W = sum(W);
+C = C / sum_W;
+W = W / sum_W;
 
 %% MAIN TRACKING LOOP
 

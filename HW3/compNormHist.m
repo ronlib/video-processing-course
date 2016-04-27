@@ -9,7 +9,7 @@ function normHist = compNormHist(I,s)
 %     TODO: find a better implementation
     for i=[y_b:y_e]
         for j=[x_b:x_e]
-            color_quantized = fix(I(i,j,1)/16)*256 + fix(I(i,j,2)/16)*16 + fix(I(i,j,3)/16) + 1;
+            color_quantized = uint16(fix(I(i,j,1)/16))*256 + uint16(fix(I(i,j,2)/16))*16 + uint16(fix(I(i,j,3)/16)) + 1;
             normHist(color_quantized) = normHist(color_quantized) + 1;
         end
     end
