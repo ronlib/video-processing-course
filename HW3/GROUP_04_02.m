@@ -61,7 +61,7 @@ s_initial = [297   % x center
     0   ]; % velocity y
 
 % CREATE INITIAL PARTICLE MATRIX 'S' (SIZE 6xN)
-S = predictParticles(repmat(s_initial, 1, N));
+S = randomStateVectors(repmat(s_initial, 1, N), [7, 5, 2, 4, 3, 3]');
 
 % LOAD FIRST IMAGE
 I = imread([fullfile('Images', images(1).name)]);
@@ -71,19 +71,7 @@ q = compNormHist(I,s_initial);
 
 % COMPUTE NORMALIZED WEIGHTS (W) AND PREDICTOR CDFS (C)
 % YOU NEED TO FILL THIS PART WITH CODE LINES:
-W = zeros(1, length(S));
-C = zeros(1, length(S));
-for i=[1:length(S)]
-    W(i) = compBatDist(q, compNormHist(I, S(:,i)));
-    if ~(i == 1)
-        C(i) = C(i-1) + W(i);
-    else
-        C(i) = W(i);
-    end
-end
-sum_W = sum(W);
-C = C / sum_W;
-W = W / sum_W;
+[C,W] = compute_weight_cdf(q,S,I);
 
 %% MAIN TRACKING LOOP
 
@@ -100,14 +88,13 @@ for i=2:length(images)
     
     % COMPUTE NORMALIZED WEIGHTS (W) AND PREDICTOR CDFS (C)
     % YOU NEED TO FILL THIS PART WITH CODE LINES:
-    % ........
-    % ........
+    [C,W] = compute_weight_cdf(q,S_next,I);
     
     % SAMPLE NEW PARTICLES FROM THE NEW CDF'S
     S = sampleParticles(S_next,C);
     
     % CREATE DETECTOR PLOTS
     if (mod(i,10)==0)
-        showParticles(I,S,W,i,ID);
+        showParticles(I,S,W,i,'GROUP-04-02');
     end
 end
