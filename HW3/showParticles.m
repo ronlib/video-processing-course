@@ -18,7 +18,7 @@ plotRectangle(mean_s, 'r');
 
 
 print(1, '-dpng', '-r300','-noui',[ID,'_HW3_',num2str(i),'.png'])
-close
+close all
 
 end
 

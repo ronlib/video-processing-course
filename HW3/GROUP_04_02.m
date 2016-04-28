@@ -78,7 +78,7 @@ q = compNormHist(I,s_initial);
 for i=2:length(images)
     S_prev = S;
     % LOAD NEW IMAGE FRAME
-    I = imread([fullfile('Images', images(1).name)]);
+    I = imread([fullfile('Images', images(i).name)]);
     
     % SAMPLE THE CURRENT PARTICLE FILTERS
     S_next_tag = sampleParticles(S_prev,C);

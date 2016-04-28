@@ -3,6 +3,10 @@ function [C,W] = compute_weight_cdf(q,S,I)
     C = zeros(1, length(S));
     for i=[1:length(S)]
         W(i) = compBatDist(q, compNormHist(I, S(:,i)));
+%         TODO: remove
+        if isnan(W(i))
+            fprintf('NAN!');
+        end
         if ~(i == 1)
             C(i) = C(i-1) + W(i);
         else
