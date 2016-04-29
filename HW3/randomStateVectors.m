@@ -3,8 +3,8 @@ function stateVectors = randomStateVectors(S, deviation_params)
 %     TODO: don't add noise to the position, but only to the speeds
     stateVectors = S;
     random_factor_mat = round(repmat(deviation_params, 1, size(S,2)).*randn(size(deviation_params, 1), size(S,2)));
-    max_rand = max(abs(random_factor_mat), 1);
-    fprintf('max: %d %d %d %d %d %d\n', max_rand(1),max_rand(2),max_rand(3),max_rand(4),max_rand(5),max_rand(6));
+%     max_rand = max(abs(random_factor_mat), 1);
+%     fprintf('max: %d %d %d %d %d %d\n', max_rand(1),max_rand(2),max_rand(3),max_rand(4),max_rand(5),max_rand(6));
     stateVectors = stateVectors + random_factor_mat;
         
 %     while i <= size(S, 2)

@@ -61,10 +61,11 @@ s_initial = [297   % x center
     0   ]; % velocity y
 
 % CREATE INITIAL PARTICLE MATRIX 'S' (SIZE 6xN)
-S = randomStateVectors(repmat(s_initial, 1, N), [7, 5, 2, 4, 3, 3]');
+S = predictParticles(repmat(s_initial, 1, N));
 
 % LOAD FIRST IMAGE
 I = imread([fullfile('Images', images(1).name)]);
+S = filterParticles(I, S);
 
 % COMPUTE NORMALIZED HISTOGRAM
 q = compNormHist(I,s_initial);
@@ -83,8 +84,9 @@ for i=2:length(images)
     % SAMPLE THE CURRENT PARTICLE FILTERS
     S_next_tag = sampleParticles(S_prev,C);
     
-    % PREDICT THE NEXT PARTICLE FILTERS (YOU MAY ADD NOISE
+    % PREDICT THE NEXT PARTICLE FILTERS (YOU MAY ADD NOISE)    
     S_next = predictParticles(S_next_tag);
+    S_next = filterParticles(I, S_next);
     
     % COMPUTE NORMALIZED WEIGHTS (W) AND PREDICTOR CDFS (C)
     % YOU NEED TO FILL THIS PART WITH CODE LINES:
