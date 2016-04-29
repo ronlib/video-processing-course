@@ -5,7 +5,7 @@ function filtered_S = filterParticles(I,S)
         S(1,:)+S(3,:) > width | S(2,:)+S(4,:) > height);
     
 %     TODO: remove
-    if length(find(f==0)) > 0
+    if ~ isempty(find(f==0))
         fprintf('filtered out %d values!\n', length(find(f==0)));
     end
     
