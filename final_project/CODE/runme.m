@@ -10,6 +10,7 @@ function runme
 %     Get foreground points from the first frame
     inputVideo.reset();
     firstFrame = step(inputVideo);
+%     firstFrame = imread('/home/ron/Downloads/IMG_20160528_135843.jpg');
     grayFirstFrame = rgb2hsv(firstFrame);
     grayFirstFrame = grayFirstFrame(:,:,3);
     
@@ -25,7 +26,7 @@ function runme
     foregroundSeedMask = zeros(size(grayFirstFrame));
     foregroundSeedMask(sub2ind(size(grayFirstFrame), foregroundPts(:,2), foregroundPts(:,1))) = 1;
     
-    [bandwidth,foregroundDensity,xmesh,cdf] = kde(foregroundSamples,1024,0,1);
+    [bandwidth,foregroundDensity,xmesh,cdf] = kde(foregroundSamples,2048,0,1);
     foregroundImageHistMatch = calcHistMatchForImage(grayFirstFrame, foregroundDensity, xmesh);
     
     fprintf('Enter background points\n');
@@ -35,7 +36,7 @@ function runme
     backgroundSeedMask = zeros(size(grayFirstFrame));
     backgroundSeedMask(sub2ind(size(grayFirstFrame), backgroundPts(:,2), backgroundPts(:,1))) = 1;
     
-    [bandwidth,backgroundDensity,xmesh,cdf] = kde(backgroundSamples,1024,0,1);
+    [bandwidth,backgroundDensity,xmesh,cdf] = kde(backgroundSamples,2048,0,1);
     backgroundImageHistMatch = calcHistMatchForImage(grayFirstFrame, backgroundDensity, xmesh);
     
     epsilon = 0.01;
@@ -43,8 +44,10 @@ function runme
     pForeground = foregroundImageHistMatch./(foregroundImageHistMatch + backgroundImageHistMatch + epsilon);
     pBackground = backgroundImageHistMatch./(foregroundImageHistMatch + backgroundImageHistMatch + epsilon);
     
-    foregroundGraydist = graydist(pForeground, boolean(foregroundSeedMask));
-    backgroundGraydist = graydist(pBackground, boolean(backgroundSeedMask));
+    [pForegroundGmag, pForegroundGdir] = imgradient(pForeground);
+    [pBackgroundGmag, pBackgroundGdir] = imgradient(pBackground);
+    foregroundGraydist = graydist(pForegroundGmag, boolean(foregroundSeedMask));
+    backgroundGraydist = graydist(pBackgroundGmag, boolean(backgroundSeedMask));
 
 
     release(inputVideo);
@@ -59,6 +62,6 @@ function [imageHistMatch]=calcHistMatchForImage(grayImage, density, xmesh)
     
     imSize = size(grayImage);
     flattenedGrayFirstFrame = reshape(grayImage, [], 1);
-    imageHistMatch = density(discretize(flattenedGrayFirstFrame, xmesh));
+    imageHistMatch = density(discretize(flattenedGrayFirstFrame, xmesh))./max(density(:));
     imageHistMatch = reshape(imageHistMatch, imSize);
 end
