@@ -65,3 +65,16 @@ function [imageHistMatch]=calcHistMatchForImage(grayImage, density, xmesh)
     imageHistMatch = density(discretize(flattenedGrayFirstFrame, xmesh))./max(density(:));
     imageHistMatch = reshape(imageHistMatch, imSize);
 end
+
+
+function [foregroundScribblePoints, backgroundScribblePoints]=findScribblePoints(grayBackground, grayFrame)
+    diffImage = abs(grayFrame - grayBackground);
+    % TODO: change the filter size to resemble a human
+    estimatedObjSize = round(max(size(grayFrame))*0.07);
+    bigDiffImage = imfilter(diffImage, ones(estimatedObjSize));
+    bigDiffImage = bigDiffImage./max(bigDiffImage(:));
+    
+    foregroundScribblePoints = find(bigDiffImage>0.8);
+    backgroundScribblePoints = find(bigDiffImage<0.2);
+    
+end
