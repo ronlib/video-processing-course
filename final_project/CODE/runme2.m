@@ -1,21 +1,13 @@
-function runme
-
-%     inputVideo = vision.VideoFileReader(fullfile('..', 'INPUT','input.avi'));
-    inputVideo = VideoReader(fullfile('..', 'INPUT','input.avi'));
-%     outputVideo = vision.VideoFileWriter(fullfile('..', 'OUTPUT','stabilized.avi'), ...
-%         'FrameRate', inputVideo.info.VideoFrameRate, 'Quality', 50, 'VideoCompressor', 'MJPEG Compressor');
-
-    outputVideo = vision.VideoFileWriter(fullfile('..', 'OUTPUT','stabilized.avi'), ...
-        'FrameRate', inputVideo.FrameRate, 'Quality', 75, 'VideoCompressor', 'MJPEG Compressor');
+function runme2(handles)
 
     %     Video stabilization
-%     stabilizeVideo(inputVideo, outputVideo);    
+%     stabilizeVideo(inputVideo, outputVideo);      
     release(outputVideo);
 %     release(inputVideo);
 %     close(inputVideo);
     
-    inputVideo = vision.VideoFileReader(fullfile('..', 'INPUT','stabilized_rect.avi'));
-    outputVideo = vision.VideoFileWriter(fullfile('..', 'OUTPUT','binary.avi'), ...
+    inputVideo = vision.VideoFileReader(fullfile(pwd, '..', '..', 'INPUT','stabilized_rect.avi'));
+    outputVideo = vision.VideoFileWriter(fullfile(pwd, '..', '..', 'OUTPUT','binary.avi'), ...
         'FrameRate', inputVideo.info.VideoFrameRate, 'Quality', 50, 'VideoCompressor', 'MJPEG Compressor');
     backgroundImage = imread('/home/ron/studies/video-processing-course/final_project/INPUT/background.jpg');
     grayBackgroundImage = single(rgb2gray(imresize(backgroundImage, 0.25)))/256;
@@ -52,9 +44,9 @@ function runme
         [pBackgroundGmag, pBackgroundGdir] = imgradient(pBackground);
         foregroundGraydist = graydist(pForegroundGmag, boolean(foregroundSeedMask));
         backgroundGraydist = graydist(pBackgroundGmag, boolean(backgroundSeedMask));
-        imshow (foregroundGraydist<backgroundGraydist);
+        showImage(handles, foregroundGraydist<backgroundGraydist);
         step(outputVideo, foregroundGraydist<backgroundGraydist);
-        fprintf('Working on frame #%d\n', counter);
+        printMessage(handles, sprintf('Working on frame #%d\n', counter));
         if counter == 55
             fprintf('time to stop\n');
         end
