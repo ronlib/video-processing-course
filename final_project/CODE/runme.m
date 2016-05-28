@@ -1,22 +1,71 @@
 function runme
 
-    inputVideo = vision.VideoFileReader(fullfile('..', 'INPUT','input.avi'));
+%     inputVideo = vision.VideoFileReader(fullfile('..', 'INPUT','input.avi'));
+    inputVideo = VideoReader(fullfile('..', 'INPUT','input.avi'));
+%     outputVideo = vision.VideoFileWriter(fullfile('..', 'OUTPUT','stabilized.avi'), ...
+%         'FrameRate', inputVideo.info.VideoFrameRate, 'Quality', 50, 'VideoCompressor', 'MJPEG Compressor');
+
     outputVideo = vision.VideoFileWriter(fullfile('..', 'OUTPUT','stabilized.avi'), ...
-        'FrameRate', inputVideo.info.VideoFrameRate, 'Quality', 50, 'VideoCompressor', 'MJPEG Compressor');
+        'FrameRate', inputVideo.FrameRate, 'Quality', 75, 'VideoCompressor', 'MJPEG Compressor');
 
     %     Video stabilization
-    %     stabilizeVideo(inputVideo, outputVideo);
+%     stabilizeVideo(inputVideo, outputVideo);    
+    release(outputVideo);
+%     release(inputVideo);
+%     close(inputVideo);
     
-%     Get foreground points from the first frame
-    inputVideo.reset();
+    inputVideo = vision.VideoFileReader(fullfile('..', 'INPUT','stabilized_rect.avi'));
+    outputVideo = vision.VideoFileWriter(fullfile('..', 'OUTPUT','binary.avi'), ...
+        'FrameRate', inputVideo.info.VideoFrameRate, 'Quality', 50, 'VideoCompressor', 'MJPEG Compressor');
+    backgroundImage = imread('/home/ron/studies/video-processing-course/final_project/INPUT/background.jpg');
+    grayBackgroundImage = single(rgb2gray(imresize(backgroundImage, 0.25)))/256;
+
     firstFrame = step(inputVideo);
-%     firstFrame = imread('/home/ron/Downloads/IMG_20160528_135843.jpg');
-    grayFirstFrame = rgb2hsv(firstFrame);
-    grayFirstFrame = grayFirstFrame(:,:,3);
+    grayFirstFrame = rgb2gray(firstFrame);
+    counter = 1;
+    while ~isDone(inputVideo) && counter < 100
+
+        curFrame = rgb2gray(step(inputVideo));
+        [foregroundScribblePoints, backgroundScribblePoints]=findScribblePoints(grayBackgroundImage, curFrame);
+        
+        
+        foregroundSeedMask = zeros(size(grayFirstFrame));
+        foregroundSeedMask(foregroundScribblePoints) = 1;
+        foregroundSamples = curFrame(foregroundScribblePoints);
+        
+        backgroundSeedMask = zeros(size(grayFirstFrame));
+        backgroundSeedMask(backgroundScribblePoints) = 1;
+        backgroundSamples = curFrame(backgroundScribblePoints);
+        
+        [bandwidth,foregroundDensity,xmesh,cdf] = kde(foregroundSamples,2048,0,1);
+        foregroundImageHistMatch = calcHistMatchForImage(curFrame, foregroundDensity, xmesh);
+ 
+        [bandwidth,backgroundDensity,xmesh,cdf] = kde(backgroundSamples,2048,0,1);
+        backgroundImageHistMatch = calcHistMatchForImage(curFrame, backgroundDensity, xmesh);
+        
+        epsilon = 0.01;
+    
+        pForeground = foregroundImageHistMatch./(foregroundImageHistMatch + backgroundImageHistMatch + epsilon);
+        pBackground = backgroundImageHistMatch./(foregroundImageHistMatch + backgroundImageHistMatch + epsilon);
+
+        [pForegroundGmag, pForegroundGdir] = imgradient(pForeground);
+        [pBackgroundGmag, pBackgroundGdir] = imgradient(pBackground);
+        foregroundGraydist = graydist(pForegroundGmag, boolean(foregroundSeedMask));
+        backgroundGraydist = graydist(pBackgroundGmag, boolean(backgroundSeedMask));
+        imshow (foregroundGraydist<backgroundGraydist);
+        step(outputVideo, foregroundGraydist<backgroundGraydist);
+        fprintf('Working on frame #%d\n', counter);
+        if counter == 55
+            fprintf('time to stop\n');
+        end
+        counter = counter + 1;
+    end
+    
+    release(outputVideo);
     
     f = figure();
     imshow(firstFrame);
-    
+
 %     Choose background
     % TODO: write text to user differently when GUI is available
     fprintf('Enter foreground points\n');
@@ -26,15 +75,16 @@ function runme
     foregroundSeedMask = zeros(size(grayFirstFrame));
     foregroundSeedMask(sub2ind(size(grayFirstFrame), foregroundPts(:,2), foregroundPts(:,1))) = 1;
     
-    [bandwidth,foregroundDensity,xmesh,cdf] = kde(foregroundSamples,2048,0,1);
-    foregroundImageHistMatch = calcHistMatchForImage(grayFirstFrame, foregroundDensity, xmesh);
-    
     fprintf('Enter background points\n');
     [x, y] = getpts(f);
     backgroundPts = round([x,y]);
     backgroundSamples = grayFirstFrame(sub2ind(size(grayFirstFrame), backgroundPts(:,2), backgroundPts(:,1)));
     backgroundSeedMask = zeros(size(grayFirstFrame));
     backgroundSeedMask(sub2ind(size(grayFirstFrame), backgroundPts(:,2), backgroundPts(:,1))) = 1;
+    
+    
+    [bandwidth,foregroundDensity,xmesh,cdf] = kde(foregroundSamples,2048,0,1);
+    foregroundImageHistMatch = calcHistMatchForImage(grayFirstFrame, foregroundDensity, xmesh);
     
     [bandwidth,backgroundDensity,xmesh,cdf] = kde(backgroundSamples,2048,0,1);
     backgroundImageHistMatch = calcHistMatchForImage(grayFirstFrame, backgroundDensity, xmesh);
@@ -51,8 +101,6 @@ function runme
 
 
     release(inputVideo);
-    release(outputVideo);
-
 end
 
 
@@ -70,11 +118,12 @@ end
 function [foregroundScribblePoints, backgroundScribblePoints]=findScribblePoints(grayBackground, grayFrame)
     diffImage = abs(grayFrame - grayBackground);
     % TODO: change the filter size to resemble a human
-    estimatedObjSize = round(max(size(grayFrame))*0.07);
-    bigDiffImage = imfilter(diffImage, ones(estimatedObjSize));
+    estimatedObjLength = round(max(size(grayFrame))*0.07);
+    estimatedObjSize = round([estimatedObjLength, estimatedObjLength*0.6]);
+    bigDiffImage = imfilter(diffImage, fspecial('gaussian', estimatedObjSize, estimatedObjLength*0.7));
     bigDiffImage = bigDiffImage./max(bigDiffImage(:));
     
-    foregroundScribblePoints = find(bigDiffImage>0.8);
-    backgroundScribblePoints = find(bigDiffImage<0.2);
+    foregroundScribblePoints = find(bigDiffImage>0.9);
+    backgroundScribblePoints = find(bigDiffImage<0.15);
     
 end

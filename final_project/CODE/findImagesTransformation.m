@@ -11,7 +11,7 @@ function [T, outStauts] = findImagesTransformation(I1, I2)
 %     showMatchedFeatures(I1, I2, validPtsI1(matchedIndices(:,1)), validPtsI2(matchedIndices(:,2)), 'falsecolor');
 
     [tform,inlierpoints1,inlierpoints2, status] = estimateGeometricTransform(validPtsI2(matchedIndices(:,2)), ...
-        validPtsI1(matchedIndices(:,1)), 'affine');
+        validPtsI1(matchedIndices(:,1)), 'projective');
 
     T = tform;
     outStauts = status;
