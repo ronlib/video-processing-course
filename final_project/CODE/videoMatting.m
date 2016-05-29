@@ -1,10 +1,11 @@
-function videoMatting(handles, backgroundImagePath)
+function videoMatting(hObject, handles, backgroundImagePath)
     
     binaryVideoPath = fullfile(pwd, '..', '..', 'OUTPUT', 'binary.avi');
-    binaryVideo = vision.VideoFileReader(binaryVideoPath);    
+    binaryVideo = vision.VideoFileReader(binaryVideoPath);
     extractedCharacterVideoPath = fullfile(pwd, '..', '..', 'OUTPUT', 'extracted.avi');
     extractedCharacterVideo = vision.VideoFileReader(extractedCharacterVideoPath);
     backgroundImage = im2double(imread(backgroundImagePath));
+    outputMattedVideoPath = fullfile(pwd, '..', '..', 'OUTPUT','matted.avi');
     outputMattedVideo = vision.VideoFileWriter(fullfile(pwd, '..', '..', 'OUTPUT','matted.avi'), ...
         'FrameRate', binaryVideo.info.VideoFrameRate, 'Quality', 75, 'VideoCompressor', 'MJPEG Compressor');
     
@@ -30,4 +31,11 @@ function videoMatting(handles, backgroundImagePath)
         step(outputMattedVideo, outputFrame);        
         counter = counter + 1;
     end
+    
+    release(outputMattedVideo);
+    release(extractedCharacterVideo);
+    release(binaryVideo);
+    
+    setVideoDisplay(hObject, handles, outputMattedVideoPath);
+    
 end

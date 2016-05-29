@@ -22,7 +22,7 @@ function varargout = runme(varargin)
 
 % Edit the above text to modify the response to help runme
 
-% Last Modified by GUIDE v2.5 29-May-2016 20:12:02
+% Last Modified by GUIDE v2.5 29-May-2016 22:21:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -61,6 +61,7 @@ guidata(hObject, handles);
 % UIWAIT makes runme wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 addpath(fullfile(pwd, '..'));
+addpath(fullfile(pwd, '..', 'tracking'));
 
 
 % --- Outputs from this function are returned to the command line.
@@ -103,8 +104,7 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-stabilizeVideo(handles, get(handles.edit1, 'String'));
-extractCharac   ter(handles);
+stabilizeVideo(hObject, handles, get(handles.edit1, 'String'));
 
 % --- Executes during object creation, after setting all properties.
 function figure1_CreateFcn(hObject, eventdata, handles)
@@ -142,6 +142,7 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+extractCharacter(hObject, handles, get(handles.edit2, 'String'));
 
 
 % --- Executes on button press in pushbutton4.
@@ -219,4 +220,53 @@ function pushbutton7_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 backgroundImagePath = get(handles.edit3, 'String');
-videoMatting(handles, backgroundImagePath);
+videoMatting(hObject, handles, backgroundImagePath);
+
+
+% --- Executes on button press in pushbutton8.
+function pushbutton8_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+videoObject = handles.videoObject;
+videoObject.reset();
+handles.isPlayingVideo = true;
+guidata(hObject, handles);
+set(handles.pushbutton9, 'Enable', 'on');
+axes(handles.axes1);
+counter = 1;
+while ~isDone(videoObject)
+    printMessage(handles, sprintf('#%d', counter));
+    frame = step(videoObject);
+    imshow(frame);
+    drawnow;
+    counter = counter + 1;
+%     pause(5);
+end
+handles.isPlayingVideo = false;
+guidata(hObject, handles);
+set(handles.pushbutton9, 'Enable', 'off');
+
+% --- Executes during object creation, after setting all properties.
+function pushbutton8_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+handles.isPlayingVideo = false;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in pushbutton9.
+function pushbutton9_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton9 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if handles.isPlayingVideo
+    handles.isPlayingVideo = false;
+    guidata(hObject, handles);
+    uiwait();
+else
+    handles.isPlayingVideo = true;
+    guidata(hObject, handles);
+    uiresume();
+end

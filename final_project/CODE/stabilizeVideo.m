@@ -1,4 +1,4 @@
-function stabilizeVideo(handles, inputVideoPath)
+function stabilizeVideo(hObject, handles, inputVideoPath)
 %     firstFrame = step(inputVideo);
     
     inputVideo = VideoReader(inputVideoPath);
@@ -30,4 +30,6 @@ function stabilizeVideo(handles, inputVideoPath)
     release(outputVideo);
     close(inputVideo);
     printMessage(handles, sprintf('Stabilized video written to OUTPUT/stabilized.avi\n'));
+    
+    setVideoDisplay(hObject, handles, outputVideoPath);
 end
