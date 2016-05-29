@@ -22,7 +22,7 @@ function varargout = runme(varargin)
 
 % Edit the above text to modify the response to help runme
 
-% Last Modified by GUIDE v2.5 29-May-2016 22:21:38
+% Last Modified by GUIDE v2.5 29-May-2016 23:31:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -270,3 +270,43 @@ else
     guidata(hObject, handles);
     uiresume();
 end
+
+
+
+function edit4_Callback(hObject, eventdata, handles)
+% hObject    handle to edit4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit4 as text
+%        str2double(get(hObject,'String')) returns contents of edit4 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+set(hObject,'String',getFileAbsPath(fullfile(pwd, '..', '..', 'OUTPUT', 'matted.avi')));
+
+
+% --- Executes on button press in pushbutton10.
+function pushbutton10_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[FileName,PathName,FilterIndex] = uigetfile(getFileAbsPath(fullfile(pwd, '..', '..', 'OUTPUT')));
+set(handles.edit4,'String',fullfile(PathName, FileName));
+
+% --- Executes on button press in pushbutton11.
+function pushbutton11_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+trackCharacter(hObject, handles, get(handles.edit4, 'String'));
