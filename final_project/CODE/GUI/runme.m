@@ -22,7 +22,7 @@ function varargout = runme(varargin)
 
 % Edit the above text to modify the response to help runme
 
-% Last Modified by GUIDE v2.5 29-May-2016 01:10:46
+% Last Modified by GUIDE v2.5 29-May-2016 20:12:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -95,7 +95,7 @@ function edit1_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-set(hObject,'String',fullfile(pwd, '..', '..', 'INPUT', 'input.avi'));
+set(hObject,'String',getFileAbsPath(fullfile(pwd, '..', '..', 'INPUT', 'input.avi')));
 
 
 % --- Executes on button press in pushbutton1.
@@ -103,8 +103,8 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-stabilizeVideo(get(handles.edit1, 'String'), handles);
-extractCharacter(handles);
+stabilizeVideo(handles, get(handles.edit1, 'String'));
+extractCharac   ter(handles);
 
 % --- Executes during object creation, after setting all properties.
 function figure1_CreateFcn(hObject, eventdata, handles)
@@ -134,7 +134,7 @@ function edit2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-set(hObject,'String',fullfile(pwd, '..', '..', 'OUTPUT', 'stabilized.avi'));
+set(hObject,'String',getFileAbsPath(fullfile(pwd, '..', '..', 'OUTPUT', 'stabilized.avi')));
 
 
 % --- Executes on button press in pushbutton2.
@@ -149,7 +149,7 @@ function pushbutton4_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton4 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[FileName,PathName,FilterIndex] = uigetfile(fullfile(pwd, '..', '..', 'INPUT'))
+[FileName,PathName,FilterIndex] = uigetfile(getFileAbsPath(fullfile(pwd, '..', '..', 'INPUT')));
 set(handles.edit1,'String',fullfile(PathName, FileName));
 
 
@@ -178,3 +178,45 @@ function pushbutton5_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 p = imread('file_open.png', 'BackgroundColor', 'none');
 set(hObject,'CData',im2double(p));
+
+
+
+function edit3_Callback(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit3 as text
+%        str2double(get(hObject,'String')) returns contents of edit3 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+set(hObject,'String',getFileAbsPath(fullfile(pwd, '..', '..', 'INPUT', 'background.jpg')));
+
+
+% --- Executes on button press in pushbutton6.
+function pushbutton6_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[FileName,PathName,FilterIndex] = uigetfile(getFileAbsPath(fullfile(pwd, '..', '..', 'INPUT')));
+set(handles.edit3,'String',fullfile(PathName, FileName));
+
+
+% --- Executes on button press in pushbutton7.
+function pushbutton7_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+backgroundImagePath = get(handles.edit3, 'String');
+videoMatting(handles, backgroundImagePath);

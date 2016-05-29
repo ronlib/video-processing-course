@@ -1,4 +1,4 @@
-function stabilizeVideo(inputVideoPath, handles)
+function stabilizeVideo(handles, inputVideoPath)
 %     firstFrame = step(inputVideo);
     
     inputVideo = VideoReader(inputVideoPath);

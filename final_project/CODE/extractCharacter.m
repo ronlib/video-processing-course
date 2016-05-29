@@ -2,11 +2,12 @@ function extractCharacter(handles, inputVideoPath)
 
 %     inputVideo = vision.VideoFileReader(fullfile(pwd, '..', '..', 'INPUT','stabilized_rect.avi'));
     inputVideo = vision.VideoFileReader(inputVideoPath);
-    outputBinaryVideo = vision.VideoFileWriter(fullfile(pwd, '..', 'OUTPUT','binary.avi'), ...
+    outputBinaryVideo = vision.VideoFileWriter(fullfile(pwd, '..', '..', 'OUTPUT','binary.avi'), ...
         'FrameRate', inputVideo.info.VideoFrameRate, 'Quality', 75, 'VideoCompressor', 'MJPEG Compressor');
-    outputExtractedVideo = vision.VideoFileWriter(fullfile(pwd, '..', 'OUTPUT','extracted.avi'), ...
+    outputExtractedVideo = vision.VideoFileWriter(fullfile(pwd, '..', '..', 'OUTPUT','extracted.avi'), ...
         'FrameRate', inputVideo.info.VideoFrameRate, 'Quality', 75, 'VideoCompressor', 'MJPEG Compressor');
     backgroundImage = imread('/home/ron/studies/Video_processing/final_project/INPUT/background.jpg');
+%     backgroundImage = background(inputVideo, 100, 1);
     grayBackgroundImage = single(rgb2gray(imresize(backgroundImage, 0.25)))/256;
 
     firstFrame = step(inputVideo);
