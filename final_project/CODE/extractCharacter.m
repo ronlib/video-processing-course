@@ -1,10 +1,5 @@
 function extractCharacter(handles, inputVideoPath)
 
-    %     Video stabilization
-%     stabilizeVideo(inputVideo, outputVideo);
-%     release(inputVideo);
-%     close(inputVideo);
-    
 %     inputVideo = vision.VideoFileReader(fullfile(pwd, '..', '..', 'INPUT','stabilized_rect.avi'));
     inputVideo = vision.VideoFileReader(inputVideoPath);
     outputBinaryVideo = vision.VideoFileWriter(fullfile(pwd, '..', 'OUTPUT','binary.avi'), ...
@@ -55,44 +50,6 @@ function extractCharacter(handles, inputVideoPath)
     
     release(outputBinaryVideo);
     release(outputExtractedVideo);
-    
-    f = figure();
-    imshow(firstFrame);
-
-%     Choose background
-    % TODO: write text to user differently when GUI is available
-    fprintf('Enter foreground points\n');
-    [x, y] = getpts(f);
-    foregroundPts = round([x,y]);
-    foregroundSamples = grayFirstFrame(sub2ind(size(grayFirstFrame), foregroundPts(:,2), foregroundPts(:,1)));
-    foregroundSeedMask = zeros(size(grayFirstFrame));
-    foregroundSeedMask(sub2ind(size(grayFirstFrame), foregroundPts(:,2), foregroundPts(:,1))) = 1;
-    
-    fprintf('Enter background points\n');
-    [x, y] = getpts(f);
-    backgroundPts = round([x,y]);
-    backgroundSamples = grayFirstFrame(sub2ind(size(grayFirstFrame), backgroundPts(:,2), backgroundPts(:,1)));
-    backgroundSeedMask = zeros(size(grayFirstFrame));
-    backgroundSeedMask(sub2ind(size(grayFirstFrame), backgroundPts(:,2), backgroundPts(:,1))) = 1;
-    
-    
-    [bandwidth,foregroundDensity,xmesh,cdf] = kde(foregroundSamples,2048,0,1);
-    foregroundImageHistMatch = calcHistMatchForImage(grayFirstFrame, foregroundDensity, xmesh);
-    
-    [bandwidth,backgroundDensity,xmesh,cdf] = kde(backgroundSamples,2048,0,1);
-    backgroundImageHistMatch = calcHistMatchForImage(grayFirstFrame, backgroundDensity, xmesh);
-    
-    epsilon = 0.01;
-    
-    pForeground = foregroundImageHistMatch./(foregroundImageHistMatch + backgroundImageHistMatch + epsilon);
-    pBackground = backgroundImageHistMatch./(foregroundImageHistMatch + backgroundImageHistMatch + epsilon);
-    
-    [pForegroundGmag, pForegroundGdir] = imgradient(pForeground);
-    [pBackgroundGmag, pBackgroundGdir] = imgradient(pBackground);
-    foregroundGraydist = graydist(pForegroundGmag, boolean(foregroundSeedMask));
-    backgroundGraydist = graydist(pBackgroundGmag, boolean(backgroundSeedMask));
-
-
     release(inputVideo);
 end
 
