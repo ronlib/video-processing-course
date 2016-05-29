@@ -48,7 +48,7 @@ function extractCharacter(handles, inputVideoPath)
         backgroundGraydist = graydist(pBackgroundGmag, boolean(backgroundSeedMask));
         showImage(handles, foregroundGraydist<backgroundGraydist);
         step(outputBinaryVideo, foregroundGraydist<backgroundGraydist);
-        step(outputExtractedVideo, curFrame.*repmat(foregroundGraydist<backgroundGraydist, 1, 1, 3));
+        step(outputExtractedVideo, curFrame.*repmat(foregroundGraydist<backgroundGraydist, 1, 1, size(curFrame, 3)));
         printMessage(handles, sprintf('Working on frame #%d\n', counter));
         counter = counter + 1;
     end
