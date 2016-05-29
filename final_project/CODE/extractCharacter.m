@@ -1,4 +1,4 @@
-function runme2(handles)
+function extractCharacter(handles)
 
     %     Video stabilization
 %     stabilizeVideo(inputVideo, outputVideo);      
