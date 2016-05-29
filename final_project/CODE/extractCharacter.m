@@ -1,59 +1,60 @@
-function extractCharacter(handles)
+function extractCharacter(handles, inputVideoPath)
 
     %     Video stabilization
-%     stabilizeVideo(inputVideo, outputVideo);      
-    release(outputVideo);
+%     stabilizeVideo(inputVideo, outputVideo);
 %     release(inputVideo);
 %     close(inputVideo);
     
-    inputVideo = vision.VideoFileReader(fullfile(pwd, '..', '..', 'INPUT','stabilized_rect.avi'));
-    outputVideo = vision.VideoFileWriter(fullfile(pwd, '..', '..', 'OUTPUT','binary.avi'), ...
-        'FrameRate', inputVideo.info.VideoFrameRate, 'Quality', 50, 'VideoCompressor', 'MJPEG Compressor');
-    backgroundImage = imread('/home/ron/studies/video-processing-course/final_project/INPUT/background.jpg');
+%     inputVideo = vision.VideoFileReader(fullfile(pwd, '..', '..', 'INPUT','stabilized_rect.avi'));
+    inputVideo = vision.VideoFileReader(inputVideoPath);
+    outputBinaryVideo = vision.VideoFileWriter(fullfile(pwd, '..', 'OUTPUT','binary.avi'), ...
+        'FrameRate', inputVideo.info.VideoFrameRate, 'Quality', 75, 'VideoCompressor', 'MJPEG Compressor');
+    outputExtractedVideo = vision.VideoFileWriter(fullfile(pwd, '..', 'OUTPUT','extracted.avi'), ...
+        'FrameRate', inputVideo.info.VideoFrameRate, 'Quality', 75, 'VideoCompressor', 'MJPEG Compressor');
+    backgroundImage = imread('/home/ron/studies/Video_processing/final_project/INPUT/background.jpg');
     grayBackgroundImage = single(rgb2gray(imresize(backgroundImage, 0.25)))/256;
 
     firstFrame = step(inputVideo);
     grayFirstFrame = rgb2gray(firstFrame);
     counter = 1;
-    while ~isDone(inputVideo) && counter < 100
-
-        curFrame = rgb2gray(step(inputVideo));
-        [foregroundScribblePoints, backgroundScribblePoints]=findScribblePoints(grayBackgroundImage, curFrame);
+    while ~isDone(inputVideo)
+        curFrame = step(inputVideo);
+        grayCurFrame = rgb2gray(curFrame);
+        [foregroundScribblePoints, backgroundScribblePoints]=findScribblePoints(grayBackgroundImage, grayCurFrame);
         
         
         foregroundSeedMask = zeros(size(grayFirstFrame));
         foregroundSeedMask(foregroundScribblePoints) = 1;
-        foregroundSamples = curFrame(foregroundScribblePoints);
+        foregroundSamples = grayCurFrame(foregroundScribblePoints);
         
         backgroundSeedMask = zeros(size(grayFirstFrame));
         backgroundSeedMask(backgroundScribblePoints) = 1;
-        backgroundSamples = curFrame(backgroundScribblePoints);
+        backgroundSamples = grayCurFrame(backgroundScribblePoints);
         
         [bandwidth,foregroundDensity,xmesh,cdf] = kde(foregroundSamples,2048,0,1);
-        foregroundImageHistMatch = calcHistMatchForImage(curFrame, foregroundDensity, xmesh);
+        foregroundImageHistMatch = calcHistMatchForImage(grayCurFrame, foregroundDensity, xmesh);
  
         [bandwidth,backgroundDensity,xmesh,cdf] = kde(backgroundSamples,2048,0,1);
-        backgroundImageHistMatch = calcHistMatchForImage(curFrame, backgroundDensity, xmesh);
+        backgroundImageHistMatch = calcHistMatchForImage(grayCurFrame, backgroundDensity, xmesh);
         
         epsilon = 0.01;
     
         pForeground = foregroundImageHistMatch./(foregroundImageHistMatch + backgroundImageHistMatch + epsilon);
         pBackground = backgroundImageHistMatch./(foregroundImageHistMatch + backgroundImageHistMatch + epsilon);
 
-        [pForegroundGmag, pForegroundGdir] = imgradient(pForeground);
-        [pBackgroundGmag, pBackgroundGdir] = imgradient(pBackground);
+        [pForegroundGmag, ~] = imgradient(pForeground);
+        [pBackgroundGmag, ~] = imgradient(pBackground);
         foregroundGraydist = graydist(pForegroundGmag, boolean(foregroundSeedMask));
         backgroundGraydist = graydist(pBackgroundGmag, boolean(backgroundSeedMask));
         showImage(handles, foregroundGraydist<backgroundGraydist);
-        step(outputVideo, foregroundGraydist<backgroundGraydist);
+        step(outputBinaryVideo, foregroundGraydist<backgroundGraydist);
+        step(outputExtractedVideo, curFrame.*repmat(foregroundGraydist<backgroundGraydist, 1, 1, 3));
         printMessage(handles, sprintf('Working on frame #%d\n', counter));
-        if counter == 55
-            fprintf('time to stop\n');
-        end
         counter = counter + 1;
     end
     
-    release(outputVideo);
+    release(outputBinaryVideo);
+    release(outputExtractedVideo);
     
     f = figure();
     imshow(firstFrame);
