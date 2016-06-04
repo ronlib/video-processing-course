@@ -65,7 +65,7 @@ addpath(fullfile(pwd, '..', 'tracking'));
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = runme_OutputFcn(hObject, eventdata, handles) 
+function varargout = runme_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -236,12 +236,11 @@ set(handles.pushbutton9, 'Enable', 'on');
 axes(handles.axes1);
 counter = 1;
 while ~isDone(videoObject)
-    printMessage(handles, sprintf('#%d', counter));
     frame = step(videoObject);
     imshow(frame);
+    printMessage(handles, sprintf('#%d', counter));
     drawnow;
     counter = counter + 1;
-%     pause(5);
 end
 handles.isPlayingVideo = false;
 guidata(hObject, handles);
