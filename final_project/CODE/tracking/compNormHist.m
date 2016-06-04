@@ -4,7 +4,7 @@ function normHist = compNormHist(I,s)
     y_b = s(2)-s(4);
     y_e = s(2)+s(4);
 
-    sub_I = I(y_b:y_e, x_b:x_e,:);
+    sub_I = im2uint8(I(y_b:y_e, x_b:x_e,:));
 
 %     Making sure imquantize would map the image to 16 levels only, by
 %     setting one of the levels to max(uint8), 256
