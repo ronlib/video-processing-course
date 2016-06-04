@@ -28,7 +28,7 @@ function stabilizeVideo(hObject, handles, inputVideoPath)
     end
     
     release(outputVideo);
-    close(inputVideo);
+%     close(inputVideo);
     printMessage(handles, sprintf('Stabilized video written to OUTPUT/stabilized.avi\n'));
     
     setVideoDisplay(hObject, handles, outputVideoPath);

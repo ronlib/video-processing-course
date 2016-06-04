@@ -1,22 +1,23 @@
 function extractCharacter(hObject, handles, inputVideoPath)
 
-%     inputVideo = vision.VideoFileReader(fullfile(pwd, '..', '..', 'INPUT','stabilized_rect.avi'));
-    inputVideo = vision.VideoFileReader(inputVideoPath);
+    tempVideo = VideoReader(inputVideoPath);
+    numberOfFrames = tempVideo.Duration*tempVideo.FrameRate;
+    inputVideo = vision.VideoFileReader(inputVideoPath, 'VideoOutputDataType', 'uint8');
     outputBinaryVideo = vision.VideoFileWriter(fullfile(pwd, '..', '..', 'OUTPUT','binary.avi'), ...
         'FrameRate', inputVideo.info.VideoFrameRate, 'Quality', 75, 'VideoCompressor', 'MJPEG Compressor');
     outputExtractedVideoPath = fullfile(pwd, '..', '..', 'OUTPUT','extracted.avi');
     outputExtractedVideo = vision.VideoFileWriter(outputExtractedVideoPath, 'FrameRate', inputVideo.info.VideoFrameRate, ...
         'Quality', 75, 'VideoCompressor', 'MJPEG Compressor');
-    % TODO: use Ori's function
 %     backgroundImage = imread('/home/ron/studies/Video_processing/final_project/INPUT/background.jpg');
-    backgroundImage = background(inputVideo, 100, 1);
+    backgroundImage = background(handles, inputVideo, round(numberOfFrames), 1);
+    reset(inputVideo);
     firstFrame = step(inputVideo);
-    firstFrameSize = size(firstFrame)
+    firstFrameSize = size(firstFrame);
     grayFirstFrame = rgb2gray(firstFrame);
     grayBackgroundImage = im2single(rgb2gray(imresize(backgroundImage, firstFrameSize(1:2))));
     counter = 1;
     while ~isDone(inputVideo)
-        curFrame = step(inputVideo);
+        curFrame = im2single(step(inputVideo));
         grayCurFrame = rgb2gray(curFrame);
         [foregroundScribblePoints, backgroundScribblePoints]=findScribblePoints(grayBackgroundImage, grayCurFrame);
         
@@ -47,7 +48,7 @@ function extractCharacter(hObject, handles, inputVideoPath)
         showImage(handles, foregroundGraydist<backgroundGraydist);
         step(outputBinaryVideo, foregroundGraydist<backgroundGraydist);
         step(outputExtractedVideo, curFrame.*repmat(foregroundGraydist<backgroundGraydist, 1, 1, size(curFrame, 3)));
-        printMessage(handles, sprintf('Working on frame #%d\n', counter));
+        printMessage(handles, sprintf('Working on frame #%d/%d\n', counter, numberOfFrames));
         counter = counter + 1;
     end
     
