@@ -128,7 +128,7 @@ if(display)
 %     figure;
 %     imshow(videoMedian3);
     
-    imwrite(videoMedian3,'backgroundImg.png');
+%     imwrite(videoMedian3,'backgroundImg.png');
 end
 
 backgroundImg = videoMedian3;
