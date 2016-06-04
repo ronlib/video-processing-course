@@ -72,6 +72,8 @@ function trackCharacter(hObject, handles, inputVideoPath)
         printMessage(handles, sprintf('Processing frame #%d', counter));
         counter = counter + 1;
     end
+    release(outputVideo);
+    setVideoDisplay(hObject, handles, outputVideoPath);
 end
 
 function [middleX, middleY, halfWidth, halfHeight] = sanitizePosition(imageSize, x, y, width, height)
