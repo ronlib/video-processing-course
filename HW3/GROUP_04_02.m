@@ -80,23 +80,23 @@ for i=2:length(images)
     S_prev = S;
     % LOAD NEW IMAGE FRAME
     I = imread([fullfile('Images', images(i).name)]);
-    
+
     % SAMPLE THE CURRENT PARTICLE FILTERS
     S_next_tag = sampleParticles(S_prev,C);
-    
-    % PREDICT THE NEXT PARTICLE FILTERS (YOU MAY ADD NOISE)    
+
+    % PREDICT THE NEXT PARTICLE FILTERS (YOU MAY ADD NOISE)
     S_next = predictParticles(S_next_tag);
     S_next = filterParticles(I, S_next);
-    
+
     % COMPUTE NORMALIZED WEIGHTS (W) AND PREDICTOR CDFS (C)
     % YOU NEED TO FILL THIS PART WITH CODE LINES:
     [C,W] = compute_weight_cdf(q,S_next,I);
-    
+
     % SAMPLE NEW PARTICLES FROM THE NEW CDF'S
     S = sampleParticles(S_next,C);
-    
+
     % CREATE DETECTOR PLOTS
     if (mod(i,10)==0)
-        showParticles(I,S,W,i,'GROUP-04-02');
+        showParticles(I,S_next,W,i,'GROUP-04-02');
     end
 end
