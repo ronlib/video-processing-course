@@ -3,31 +3,37 @@ function trackCharacter(hObject, handles, inputVideoPath)
     % SET NUMBER OF PARTICLES
     N = 100;
     inputVideo = vision.VideoFileReader(inputVideoPath);
+    outputVideoPath = fullfile(pwd, '..', '..', 'OUTPUT','OUTPUT.avi');
+    outputVideo = vision.VideoFileWriter(outputVideoPath, 'FrameRate', ...
+        inputVideo.info.VideoFrameRate, 'Quality', 75, 'VideoCompressor', 'MJPEG Compressor');
     firstFrame = step(inputVideo);
     axes(handles.axes1);
+    set(handles.axes1, 'SortMethod', 'childorder');
     imshow(firstFrame);
     % Initial Settings
     % Using fullfile in order to support Matlab under Linux
     printMessage(handles, sprintf('Select the object by selecting a rectangle and double clicking it\n'));
     rect = imrect();
     rect.wait();
-    [x, y, xWidth, yHeight] = rect.getPosition();
+    position = num2cell(rect.getPosition());
+    [x, y, xWidth, yHeight] = deal(position{:});
     rect.delete();
     
-    s_initial = [297   % x center
-        139    % y center
-        16     % half width
-        43     % half height
+    s_initial = [0  % x center
+        0     % y center
+        0     % half width
+        0     % half height
         0      % velocity x
         0   ]; % velocity y
     
-    s_initial(1:4) = sanitizePosition(x, y, xWidth, yHeight);
+    [middleX, middleY, halfWidth, halfHeight] = sanitizePosition(size(firstFrame), x, y, xWidth, yHeight);
+    s_initial(1:4) = [middleX, middleY, halfWidth, halfHeight];
 
     % CREATE INITIAL PARTICLE MATRIX 'S' (SIZE 6xN)
     S = predictParticles(repmat(s_initial, 1, N));
 
     % LOAD FIRST IMAGE
-    I = imread([fullfile('Images', images(1).name)]);
+    I = firstFrame;
     S = filterParticles(I, S);
 
     % COMPUTE NORMALIZED HISTOGRAM
@@ -38,11 +44,11 @@ function trackCharacter(hObject, handles, inputVideoPath)
     [C,W] = compute_weight_cdf(q,S,I);
 
     %% MAIN TRACKING LOOP
-
-    for i=2:length(images)
+    counter = 1;
+    while ~isDone(inputVideo)
         S_prev = S;
         % LOAD NEW IMAGE FRAME
-        I = imread([fullfile('Images', images(i).name)]);
+        I = step(inputVideo);
 
         % SAMPLE THE CURRENT PARTICLE FILTERS
         S_next_tag = sampleParticles(S_prev,C);
@@ -59,9 +65,12 @@ function trackCharacter(hObject, handles, inputVideoPath)
         S = sampleParticles(S_next,C);
 
         % CREATE DETECTOR PLOTS
-        if (mod(i,10)==0)
-            showParticles(I,S,W,i,'GROUP-04-02');
-        end
+        showParticles(handles, I,S_next,W);
+        plottedFrame = getframe(handles.axes1);
+        plottedFrame = plottedFrame.cdata;
+        step(outputVideo, plottedFrame);
+        printMessage(handles, sprintf('Processing frame #%d', counter));
+        counter = counter + 1;
     end
 end
 
@@ -104,8 +113,8 @@ function [middleX, middleY, halfWidth, halfHeight] = sanitizePosition(imageSize,
     end
     
 %    [middleX, middleY, halfWidth, halfHeight]
-    middleX = round((x+width)/2);
-    middleY = round((y+height)/2);
+    middleX = round(x+width/2);
+    middleY = round(y+height/2);
     
     halfWidth = round(width/2);
     halfHeight = round(height/2);

@@ -1,5 +1,5 @@
 function S_next_tag = sampleParticles(S_prev, C)
-    num_samples = 100;
+    num_samples = 200;
     S_next_tag = zeros(size(S_prev, 1), num_samples);
     random_samples = unifrnd(0,1,1,num_samples);
 
