@@ -11,8 +11,7 @@ function trackCharacter(hObject, handles, inputVideoPath)
     set(handles.axes1, 'SortMethod', 'childorder');
     imshow(firstFrame);
     % Initial Settings
-    % Using fullfile in order to support Matlab under Linux
-    printMessage(handles, sprintf('Select the object by selecting a rectangle and double clicking it\n'));
+    printMessage(handles, sprintf('Select the object by marking a rectangle and double clicking it\n'));
     rect = imrect();
     rect.wait();
     position = num2cell(rect.getPosition());
