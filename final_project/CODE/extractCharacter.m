@@ -8,12 +8,12 @@ function extractCharacter(hObject, handles, inputVideoPath)
     outputExtractedVideo = vision.VideoFileWriter(outputExtractedVideoPath, 'FrameRate', inputVideo.info.VideoFrameRate, ...
         'Quality', 75, 'VideoCompressor', 'MJPEG Compressor');
     % TODO: use Ori's function
-    backgroundImage = imread('/home/ron/studies/Video_processing/final_project/INPUT/background.jpg');
-%     backgroundImage = background(inputVideo, 100, 1);
-    grayBackgroundImage = single(rgb2gray(imresize(backgroundImage, 0.25)))/256;
-
+%     backgroundImage = imread('/home/ron/studies/Video_processing/final_project/INPUT/background.jpg');
+    backgroundImage = background(inputVideo, 100, 1);
     firstFrame = step(inputVideo);
+    firstFrameSize = size(firstFrame)
     grayFirstFrame = rgb2gray(firstFrame);
+    grayBackgroundImage = im2single(rgb2gray(imresize(backgroundImage, firstFrameSize(1:2))));
     counter = 1;
     while ~isDone(inputVideo)
         curFrame = step(inputVideo);
