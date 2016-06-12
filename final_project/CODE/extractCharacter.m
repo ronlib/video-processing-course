@@ -49,8 +49,8 @@ function extractCharacter(hObject, handles, inputVideoPath)
         [pBackgroundGmag, ~] = imgradient(pBackground);
         foregroundGraydist = graydist(pForegroundGmag, boolean(foregroundSeedMask));
         backgroundGraydist = graydist(pBackgroundGmag, boolean(backgroundSeedMask));
-        showImage(handles, foregroundGraydist<backgroundGraydist);
-        maxDistance = max(max(backgroundGraydist(:)), max(foregroundGraydist(:)));
+        
+%         maxDistance = max(max(backgroundGraydist(:)), max(foregroundGraydist(:)));
         [boarderLine, ~] = imgradient(foregroundGraydist<backgroundGraydist);
 
         % Widen the boarder line
@@ -83,7 +83,7 @@ function extractCharacter(hObject, handles, inputVideoPath)
         weightB = ((backgroundBoarderGraydist+epsilon).^-r) .* pBackgroundBoarder;
 
         alpha = widenedBoaderline.*(weightF./(weightF+weightB+epsilon)) + (1-widenedBoaderline).*(foregroundGraydist<backgroundGraydist);
-
+        showImage(handles, foregroundGraydist<backgroundGraydist);
         step(outputBinaryVideo, alpha);
         step(outputExtractedVideo, curFrame.*repmat(alpha, 1, 1, size(curFrame, 3)));
         printMessage(handles, sprintf('Working on frame #%d/%d\n', counter, numberOfFrames));
@@ -103,8 +103,9 @@ function [imageHistMatch]=calcHistMatchForImage(grayImage, density, xmesh)
     % based on its intensity, and according to a density vector
 
     imSize = size(grayImage);
-    flattenedGrayFirstFrame = reshape(grayImage, [], 1);
-    imageHistMatch = density(discretize(flattenedGrayFirstFrame, xmesh))./max(density(:));
+    flattenedGrayFrame = reshape(grayImage, [], 1);
+    [~,~,bin] = histcounts(flattenedGrayFrame, xmesh);
+    imageHistMatch = density(bin)./max(density(:));
     imageHistMatch = reshape(imageHistMatch, imSize);
 end
 
