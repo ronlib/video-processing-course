@@ -52,9 +52,7 @@ function extractCharacter(hObject, handles, inputVideoPath)
         foregroundGraydist = graydist(pForegroundGmag, boolean(foregroundSeedMask));
         backgroundGraydist = graydist(pBackgroundGmag, boolean(backgroundSeedMask));
         foregroundMap = getBiggestConnectedComponent(foregroundGraydist<backgroundGraydist);
-        showImage(handles, foregroundMap);
-
-        maxDistance = max(max(backgroundGraydist(:)), max(foregroundGraydist(:)));
+        
         [boarderLine, ~] = imgradient(foregroundMap);
 
         % Widen the boarder line
@@ -87,7 +85,8 @@ function extractCharacter(hObject, handles, inputVideoPath)
         weightB = ((backgroundBoarderGraydist+epsilon).^-r) .* pBackgroundBoarder;
 
         alpha = widenedBoaderline.*(weightF./(weightF+weightB+epsilon)) + (1-widenedBoaderline).*(foregroundMap);
-
+        showImage(handles, alpha);
+        
         step(outputBinaryVideo, alpha);
         step(outputExtractedVideo, curFrame.*repmat(alpha, 1, 1, size(curFrame, 3)));
         printMessage(handles, sprintf('Working on frame #%d/%d\n', counter, numberOfFrames));
