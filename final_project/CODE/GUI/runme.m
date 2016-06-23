@@ -42,6 +42,8 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
+addpath(fullfile(pwd, '..'));
+addpath(fullfile(pwd, '..', 'tracking'));
 
 
 % --- Executes just before runme is made visible.
@@ -60,8 +62,7 @@ guidata(hObject, handles);
 
 % UIWAIT makes runme wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
-addpath(fullfile(pwd, '..'));
-addpath(fullfile(pwd, '..', 'tracking'));
+
 
 
 % --- Outputs from this function are returned to the command line.

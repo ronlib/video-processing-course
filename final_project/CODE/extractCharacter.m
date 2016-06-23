@@ -21,10 +21,12 @@ function extractCharacter(hObject, handles, inputVideoPath)
     grayBackgroundImage = im2single(rgb2gray(imresize(backgroundImage, firstFrameSize(1:2))));
     counter = 1;
     while ~isDone(inputVideo)
+     
         curFrame = im2single(step(inputVideo));
         grayCurFrame = rgb2gray(curFrame);
         [foregroundScribblePoints, backgroundScribblePoints]=findScribblePoints(grayBackgroundImage, grayCurFrame);
-
+        
+        foregroundScribblePoints = logical(getBiggestConnectedComponent(foregroundScribblePoints));
 
         foregroundSeedMask = zeros(size(grayFirstFrame));
         foregroundSeedMask(foregroundScribblePoints) = 1;
@@ -49,15 +51,17 @@ function extractCharacter(hObject, handles, inputVideoPath)
         [pBackgroundGmag, ~] = imgradient(pBackground);
         foregroundGraydist = graydist(pForegroundGmag, boolean(foregroundSeedMask));
         backgroundGraydist = graydist(pBackgroundGmag, boolean(backgroundSeedMask));
-        showImage(handles, foregroundGraydist<backgroundGraydist);
+        foregroundMap = getBiggestConnectedComponent(foregroundGraydist<backgroundGraydist);
+        showImage(handles, foregroundMap);
+        
         maxDistance = max(max(backgroundGraydist(:)), max(foregroundGraydist(:)));
-        [boarderLine, ~] = imgradient(foregroundGraydist<backgroundGraydist);
+        [boarderLine, ~] = imgradient(foregroundMap);
 
         % Widen the boarder line
         widenedTwiceBoaderline = imfilter(boarderLine, ones(boarderThickness*2))>0;
         widenedBoaderline = imfilter(boarderLine, ones(boarderThickness))>0;
-        foregroundScribbles = (foregroundGraydist<backgroundGraydist).*(widenedTwiceBoaderline - widenedBoaderline);
-        backgroundScribbles = (foregroundGraydist>backgroundGraydist).*(widenedTwiceBoaderline - widenedBoaderline);
+        foregroundScribbles = (foregroundMap).*(widenedTwiceBoaderline - widenedBoaderline);
+        backgroundScribbles = (1-foregroundMap).*(widenedTwiceBoaderline - widenedBoaderline);
 
         foregroundNearBoarderSamples = grayCurFrame(foregroundScribbles > 0);
         backgroundNearBoarderSamples = grayCurFrame(backgroundScribbles > 0);
@@ -82,7 +86,7 @@ function extractCharacter(hObject, handles, inputVideoPath)
         weightF = ((foregroundBoarderGraydist+epsilon).^-r) .* pForegroundBoarder;
         weightB = ((backgroundBoarderGraydist+epsilon).^-r) .* pBackgroundBoarder;
 
-        alpha = widenedBoaderline.*(weightF./(weightF+weightB+epsilon)) + (1-widenedBoaderline).*(foregroundGraydist<backgroundGraydist);
+        alpha = widenedBoaderline.*(weightF./(weightF+weightB+epsilon)) + (1-widenedBoaderline).*(foregroundMap);
 
         step(outputBinaryVideo, alpha);
         step(outputExtractedVideo, curFrame.*repmat(alpha, 1, 1, size(curFrame, 3)));
@@ -116,8 +120,15 @@ function [foregroundScribblePoints, backgroundScribblePoints]=findScribblePoints
     estimatedObjSize = round([estimatedObjLength, estimatedObjLength*0.6]);
     bigDiffImage = imfilter(diffImage, fspecial('gaussian', estimatedObjSize, estimatedObjLength*0.7));
     bigDiffImage = bigDiffImage./max(bigDiffImage(:));
+    bigDiffImageSortedValues = sort(bigDiffImage(:));
+    foregroundScribblePoints = bigDiffImage>bigDiffImageSortedValues(round(length(bigDiffImageSortedValues)*0.95));
+    backgroundScribblePoints = find(bigDiffImage<bigDiffImageSortedValues(round(length(bigDiffImageSortedValues)*0.90)));
+end
 
-    foregroundScribblePoints = find(bigDiffImage>0.9);
-    backgroundScribblePoints = find(bigDiffImage<0.15);
 
+function [biggestConnectedComponent]=getBiggestConnectedComponent(map)        
+    connectedComponents = bwconncomp(map);
+    [~, idx] = max(cellfun(@numel, connectedComponents.PixelIdxList));
+    biggestConnectedComponent = zeros(size(map));
+    biggestConnectedComponent(connectedComponents.PixelIdxList{idx}) = 1;
 end
