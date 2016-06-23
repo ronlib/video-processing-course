@@ -21,11 +21,11 @@ function extractCharacter(hObject, handles, inputVideoPath)
     grayBackgroundImage = im2single(rgb2gray(imresize(backgroundImage, firstFrameSize(1:2))));
     counter = 1;
     while ~isDone(inputVideo)
-     
+
         curFrame = im2single(step(inputVideo));
         grayCurFrame = rgb2gray(curFrame);
         [foregroundScribblePoints, backgroundScribblePoints]=findScribblePoints(grayBackgroundImage, grayCurFrame);
-        
+
         foregroundScribblePoints = logical(getBiggestConnectedComponent(foregroundScribblePoints));
 
         foregroundSeedMask = zeros(size(grayFirstFrame));
@@ -53,7 +53,7 @@ function extractCharacter(hObject, handles, inputVideoPath)
         backgroundGraydist = graydist(pBackgroundGmag, boolean(backgroundSeedMask));
         foregroundMap = getBiggestConnectedComponent(foregroundGraydist<backgroundGraydist);
         showImage(handles, foregroundMap);
-        
+
         maxDistance = max(max(backgroundGraydist(:)), max(foregroundGraydist(:)));
         [boarderLine, ~] = imgradient(foregroundMap);
 
@@ -107,8 +107,9 @@ function [imageHistMatch]=calcHistMatchForImage(grayImage, density, xmesh)
     % based on its intensity, and according to a density vector
 
     imSize = size(grayImage);
-    flattenedGrayFirstFrame = reshape(grayImage, [], 1);
-    imageHistMatch = density(discretize(flattenedGrayFirstFrame, xmesh))./max(density(:));
+    flattenedGrayFrame = reshape(grayImage, [], 1);
+    [~,~,bin] = histcounts(flattenedGrayFrame, xmesh);
+    imageHistMatch = density(bin)./max(density(:));
     imageHistMatch = reshape(imageHistMatch, imSize);
 end
 
@@ -126,7 +127,7 @@ function [foregroundScribblePoints, backgroundScribblePoints]=findScribblePoints
 end
 
 
-function [biggestConnectedComponent]=getBiggestConnectedComponent(map)        
+function [biggestConnectedComponent]=getBiggestConnectedComponent(map)
     connectedComponents = bwconncomp(map);
     [~, idx] = max(cellfun(@numel, connectedComponents.PixelIdxList));
     biggestConnectedComponent = zeros(size(map));
