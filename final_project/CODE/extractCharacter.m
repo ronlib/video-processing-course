@@ -89,7 +89,7 @@ function extractCharacter(hObject, handles, inputVideoPath)
         
         step(outputBinaryVideo, alpha);
         step(outputExtractedVideo, curFrame.*repmat(alpha, 1, 1, size(curFrame, 3)));
-        printMessage(handles, sprintf('Working on frame #%d/%d\n', counter, numberOfFrames));
+        printMessage(handles, sprintf('Working on frame #%d/%3d\n', counter, numberOfFrames));
         counter = counter + 1;
     end
 
@@ -116,7 +116,7 @@ end
 function [foregroundScribblePoints, backgroundScribblePoints]=findScribblePoints(grayBackground, grayFrame)
     diffImage = abs(grayFrame - grayBackground);
     % TODO: change the filter size to resemble a human
-    estimatedObjLength = round(max(size(grayFrame))*0.07);
+    estimatedObjLength = round(max(size(grayFrame))*0.01);
     estimatedObjSize = round([estimatedObjLength, estimatedObjLength*0.6]);
     bigDiffImage = imfilter(diffImage, fspecial('gaussian', estimatedObjSize, estimatedObjLength*0.7));
     bigDiffImage = bigDiffImage./max(bigDiffImage(:));
